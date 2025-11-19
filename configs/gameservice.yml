@@ -1,0 +1,9 @@
+serviceName: "gameservice"
+httpPort: 8081
+
+kafka:
+  brokers:
+    - "localhost:19092"
+  groupId: "gameservice-group"
+  topics:
+    matchCreated: "match_created"
