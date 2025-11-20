@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/DMiljevic1/pulsebet/internal/config"
+	"github.com/DMiljevic1/pulsebet/internal/db"
 	gamehttp "github.com/DMiljevic1/pulsebet/internal/http/game"
 	"github.com/DMiljevic1/pulsebet/internal/httpserver"
 	"github.com/DMiljevic1/pulsebet/internal/logging"
@@ -22,10 +23,21 @@ func main() {
 	// 2) Logger
 	logger := logging.New(cfg.ServiceName)
 
-	// 3) Domain service
-	gameService := game.NewService()
+	// 3) Db connection
+	dbConn, err := db.Connect(cfg.Database)
+	if err != nil {
+		logger.Error("Failed to connect to database: %v", err)
+		return
+	}
+	defer dbConn.Close()
 
-	// 4) HTTP router
+	// 4) Repository
+	gameRepo := game.NewRepository(dbConn)
+
+	// 5) Domain service
+	gameService := game.NewService(gameRepo)
+
+	// 6) HTTP router
 	mux := http.NewServeMux()
 
 	// health endpoint
@@ -34,9 +46,9 @@ func main() {
 	})
 
 	// game HTTP handlers
-	gamehttp.RegisterHandlers(mux, gameService)
+	gamehttp.RegisterHandlers(mux, gameService, logger)
 
-	// 5) HTTP server
+	// 7) HTTP server
 	server := httpserver.New(cfg.HTTPPort, mux)
 
 	if err := server.Start(); err != nil {
