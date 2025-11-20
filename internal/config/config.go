@@ -15,9 +15,18 @@ type KafkaConfig struct {
 	Topics  KafkaTopics `yaml:"topics"`
 }
 type Config struct {
-	ServiceName string      `yaml:"serviceName"`
-	HTTPPort    int         `yaml:"httpPort"`
-	Kafka       KafkaConfig `yaml:"kafka"`
+	ServiceName string         `yaml:"serviceName"`
+	HTTPPort    int            `yaml:"httpPort"`
+	Kafka       KafkaConfig    `yaml:"kafka"`
+	Database    DatabaseConfig `yaml:"database"`
+}
+
+type DatabaseConfig struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Name     string `yaml:"name"`
 }
 
 func Load(path string) (*Config, error) {
