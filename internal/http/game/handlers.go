@@ -10,10 +10,16 @@ import (
 
 func RegisterHandlers(mux *http.ServeMux, service game.Service, logger *slog.Logger) {
 	mux.HandleFunc("/matches", func(w http.ResponseWriter, req *http.Request) {
-		if req.Method != http.MethodPost {
+		switch req.Method {
+		case http.MethodGet:
+			handleGetAllMatches(w, req, service)
+			return
+		case http.MethodPost:
+			handleCreateMatch(w, req, service, logger)
+			return
+		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
-		handleCreateMatch(w, req, service, logger)
 	})
 }
 
@@ -39,5 +45,21 @@ func handleCreateMatch(w http.ResponseWriter, r *http.Request, service game.Serv
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(response)
+}
+
+func handleGetAllMatches(w http.ResponseWriter, r *http.Request, service game.Service) {
+	matches := service.GetAll()
+
+	response := make([]GetMatchResponse, 0, len(matches))
+	for _, v := range matches {
+		response = append(response, GetMatchResponse{
+			ID:   v.ID,
+			Home: v.Home,
+			Away: v.Away,
+		})
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(response)
 }

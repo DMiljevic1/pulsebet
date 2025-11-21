@@ -31,5 +31,5 @@ func (s *service) CreateMatch(home, away string) (Match, error) {
 }
 
 func (s *service) GetAll() []Match {
-	return nil
+	return s.repository.GetAll()
 }
