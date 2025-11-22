@@ -37,6 +37,7 @@ func main() {
 
 	// 5) Kafka producer
 	producer := kafkapkg.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.Topics.MatchCreated, logger)
+	fmt.Printf("Kafka topic: %q\n", cfg.Kafka.Topics.MatchCreated)
 	defer producer.Close()
 
 	// 6) Domain service
