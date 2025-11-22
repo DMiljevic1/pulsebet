@@ -1,0 +1,15 @@
+serviceName: "betservice"
+httpPort: 8082
+
+kafka:
+  brokers:
+    - "localhost:19092"
+  groupId: "betservice-group"
+  topics:
+    matchCreated: "match_created"
+database:
+  host: "0.0.0.0"
+  port: 5432
+  user: "betservice_user"
+  password: "betservice_pass"
+  name: "betservice_db"

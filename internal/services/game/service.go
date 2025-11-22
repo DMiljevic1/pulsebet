@@ -1,19 +1,30 @@
 package game
 
-import "github.com/google/uuid"
+import (
+	"context"
+
+	"github.com/DMiljevic1/pulsebet/internal/events"
+	"github.com/google/uuid"
+)
 
 type Service interface {
 	CreateMatch(home, away string) (Match, error)
 	GetAll() []Match
 }
 
-type service struct {
-	repository Repository
+type EventPublisher interface {
+	Publish(ctx context.Context, key string, event any) error
 }
 
-func NewService(repository Repository) Service {
+type service struct {
+	repo      Repository
+	publisher EventPublisher
+}
+
+func NewService(repo Repository, publisher EventPublisher) Service {
 	return &service{
-		repository: repository,
+		repo:      repo,
+		publisher: publisher,
 	}
 }
 
@@ -23,13 +34,26 @@ func (s *service) CreateMatch(home, away string) (Match, error) {
 		Home: home,
 		Away: away,
 	}
-	err := s.repository.Save(match)
+	err := s.repo.Save(match)
 	if err != nil {
+
 		return Match{}, err
 	}
+
+	if s.publisher != nil {
+		evt := events.MatchCreated{
+			ID:   match.ID,
+			Home: match.Home,
+			Away: match.Away,
+		}
+		if err := s.publisher.Publish(context.Background(), match.ID, evt); err != nil {
+			return Match{}, err
+		}
+	}
+
 	return match, nil
 }
 
 func (s *service) GetAll() []Match {
-	return s.repository.GetAll()
+	return s.repo.GetAll()
 }

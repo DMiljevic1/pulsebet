@@ -19,6 +19,7 @@ func RegisterHandlers(mux *http.ServeMux, service game.Service, logger *slog.Log
 			return
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
 		}
 	})
 }
@@ -35,6 +36,7 @@ func handleCreateMatch(w http.ResponseWriter, r *http.Request, service game.Serv
 	if err != nil {
 		logger.Error("Failed to create a match", err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	response := CreateMatchResponse{

@@ -7,7 +7,7 @@ import (
 )
 
 type KafkaTopics struct {
-	MatchCreated string `yaml:"match_created"`
+	MatchCreated string `yaml:"matchCreated"`
 }
 type KafkaConfig struct {
 	Brokers []string    `yaml:"brokers"`

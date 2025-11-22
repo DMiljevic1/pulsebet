@@ -9,6 +9,7 @@ import (
 	"github.com/DMiljevic1/pulsebet/internal/db"
 	gamehttp "github.com/DMiljevic1/pulsebet/internal/http/game"
 	"github.com/DMiljevic1/pulsebet/internal/httpserver"
+	kafkapkg "github.com/DMiljevic1/pulsebet/internal/kafka"
 	"github.com/DMiljevic1/pulsebet/internal/logging"
 	"github.com/DMiljevic1/pulsebet/internal/services/game"
 )
@@ -34,10 +35,15 @@ func main() {
 	// 4) Repository
 	gameRepo := game.NewRepository(dbConn)
 
-	// 5) Domain service
-	gameService := game.NewService(gameRepo)
+	// 5) Kafka producer
+	producer := kafkapkg.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.Topics.MatchCreated, logger)
+	fmt.Printf("Kafka topic: %q\n", cfg.Kafka.Topics.MatchCreated)
+	defer producer.Close()
 
-	// 6) HTTP router
+	// 6) Domain service
+	gameService := game.NewService(gameRepo, producer)
+
+	// 7) HTTP router
 	mux := http.NewServeMux()
 
 	// health endpoint
@@ -48,7 +54,7 @@ func main() {
 	// game HTTP handlers
 	gamehttp.RegisterHandlers(mux, gameService, logger)
 
-	// 7) HTTP server
+	// 8) HTTP server
 	server := httpserver.New(cfg.HTTPPort, mux)
 
 	if err := server.Start(); err != nil {
