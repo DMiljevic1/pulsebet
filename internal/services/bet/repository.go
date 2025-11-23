@@ -44,15 +44,16 @@ func (repo *repository) SaveBet(bet Bet) error {
 func (repo *repository) SaveAvailableMatch(ctx context.Context, m Match) error {
 	const query = `
 		INSERT INTO matches (id, home, away)
-		VALUES ($1, $2, $3);
+		VALUES ($1, $2, $3)
+		ON CONFLICT (id) DO UPDATE 
+		SET home = EXCLUDED.home,
+		    away = EXCLUDED.away;
 	`
-	_, err := repo.db.Exec(query,
+
+	_, err := repo.db.ExecContext(ctx, query,
 		m.ID,
 		m.Home,
 		m.Away,
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
