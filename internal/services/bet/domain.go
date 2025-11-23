@@ -13,8 +13,7 @@ type Bet struct {
 }
 
 type Match struct {
-	ID        string
-	Home      string
-	Away      string
-	CreatedAt time.Time
+	ID   string
+	Home string
+	Away string
 }

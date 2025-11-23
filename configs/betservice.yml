@@ -10,6 +10,6 @@ kafka:
 database:
   host: "0.0.0.0"
   port: 5432
-  user: "betservice_user"
-  password: "betservice_pass"
+  user: "pulsebet"
+  password: "pulsebet"
   name: "betservice_db"
