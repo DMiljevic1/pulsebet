@@ -1,13 +1,16 @@
 package bet
 
 import (
+	"context"
 	"errors"
 
+	"github.com/DMiljevic1/pulsebet/internal/events"
 	"github.com/google/uuid"
 )
 
 type Service interface {
 	SaveBet(bet Bet) (Bet, error)
+	HandleMatchCreated(ctx context.Context, key string, evt events.MatchCreated) error
 }
 
 type service struct {
@@ -46,4 +49,17 @@ func (s *service) SaveBet(bet Bet) (Bet, error) {
 		return Bet{}, err
 	}
 	return bet, nil
+}
+
+func (s *service) HandleMatchCreated(ctx context.Context, key string, evt events.MatchCreated) error {
+	m := Match{
+		ID:   evt.ID,
+		Home: evt.Home,
+		Away: evt.Away,
+	}
+
+	if err := s.repo.SaveAvailableMatch(ctx, m); err != nil {
+		return err
+	}
+	return nil
 }

@@ -1,12 +1,14 @@
 package bet
 
 import (
+	"context"
 	"database/sql"
 	"time"
 )
 
 type Repository interface {
 	SaveBet(bet Bet) error
+	SaveAvailableMatch(ctx context.Context, m Match) error
 }
 
 type repository struct {
@@ -33,6 +35,22 @@ func (repo *repository) SaveBet(bet Bet) error {
 		bet.Stake,
 		bet.Odds,
 		bet.PlacedAt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *repository) SaveAvailableMatch(ctx context.Context, m Match) error {
+	const query = `
+		INSERT INTO matches (id, home, away)
+		VALUES ($1, $2, $3);
+	`
+	_, err := repo.db.Exec(query,
+		m.ID,
+		m.Home,
+		m.Away,
+	)
 	if err != nil {
 		return err
 	}

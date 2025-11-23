@@ -1,20 +1,24 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/DMiljevic1/pulsebet/internal/config"
 	db2 "github.com/DMiljevic1/pulsebet/internal/db"
+	"github.com/DMiljevic1/pulsebet/internal/events"
 	bethttp "github.com/DMiljevic1/pulsebet/internal/http/bet"
 	"github.com/DMiljevic1/pulsebet/internal/httpserver"
+	"github.com/DMiljevic1/pulsebet/internal/kafka"
 	"github.com/DMiljevic1/pulsebet/internal/logging"
 	"github.com/DMiljevic1/pulsebet/internal/services/bet"
+	segmentio "github.com/segmentio/kafka-go"
 )
 
 func main() {
-	cfg, err := config.Load("configs/betservice.yaml")
+	cfg, err := config.Load("configs/betservice.yml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,6 +35,27 @@ func main() {
 	repo := bet.NewRepository(db)
 
 	service := bet.NewService(repo)
+
+	consumer := kafka.NewConsumer[events.MatchCreated](
+		cfg.Kafka.Brokers,
+		cfg.Kafka.Topics.MatchCreated,
+		cfg.Kafka.GroupID,
+		4,
+		logger,
+	)
+
+	defer consumer.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go func() {
+		consumerErr := consumer.Consume(ctx, func(ctx context.Context, key string, evt events.MatchCreated, msg segmentio.Message) error {
+			return service.HandleMatchCreated(ctx, key, evt)
+		})
+
+		if consumerErr != nil && consumerErr != context.Canceled {
+			logger.Error("consumer stopped", "error", consumerErr)
+		}
+	}()
 
 	mux := http.NewServeMux()
 
