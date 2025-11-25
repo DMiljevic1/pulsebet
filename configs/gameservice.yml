@@ -3,12 +3,12 @@ httpPort: 8081
 
 kafka:
   brokers:
-    - "localhost:19092"
+    - "redpanda:9092"
   groupId: "gameservice-group"
   topics:
     matchCreated: "match_created"
 database:
-  host: "0.0.0.0"
+  host: "postgres"
   port: 5432
   user: "pulsebet"
   password: "pulsebet"
