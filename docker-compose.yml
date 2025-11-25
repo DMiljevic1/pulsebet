@@ -1,0 +1,96 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: pulsebet-postgres
+    environment:
+      POSTGRES_USER: pulsebet
+      POSTGRES_PASSWORD: pulsebet
+      POSTGRES_DB: pulsebet
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+    networks:
+      - appnet
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.3.5
+    container_name: pulsebet-redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp 1
+      - --memory=1G
+      - --reserve-memory=0M
+      - --node-id=0
+      - --check=false
+      - --kafka-addr=internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr=internal://redpanda:9092,external://localhost:19092
+    ports:
+      - "19092:19092"
+      - "9644:9644" # admin UI / metrics, može i bez ovoga
+    networks:
+      - appnet
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    networks:
+      - appnet
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - appnet
+
+  gameservice:
+    build:
+      context: .
+      dockerfile: ./cmd/gameservice/Dockerfile
+    container_name: gameservice
+    depends_on:
+      - postgres
+      - redpanda
+    ports:
+      - "8081:8081"
+    networks:
+      - appnet
+
+  betservice:
+    build:
+      context: .
+      dockerfile: ./cmd/betservice/Dockerfile
+    container_name: betservice
+    depends_on:
+      - postgres
+      - redpanda
+    ports:
+      - "8082:8082"
+    networks:
+      - appnet
+
+
+volumes:
+  pgdata:
+
+networks:
+  appnet:
+    driver: bridge
+

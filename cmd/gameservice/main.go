@@ -12,6 +12,7 @@ import (
 	kafkapkg "github.com/DMiljevic1/pulsebet/internal/kafka"
 	"github.com/DMiljevic1/pulsebet/internal/logging"
 	"github.com/DMiljevic1/pulsebet/internal/services/game"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -56,6 +57,8 @@ func main() {
 
 	// 8) HTTP server
 	server := httpserver.New(cfg.HTTPPort, mux)
+
+	mux.Handle("/metrics", promhttp.Handler())
 
 	if err := server.Start(); err != nil {
 		logger.Error("server stopped", "error", err)
