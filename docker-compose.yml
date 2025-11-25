@@ -86,6 +86,17 @@ services:
     networks:
       - appnet
 
+  oddsservice:
+    build:
+      context: .
+      dockerfile: ./cmd/oddsservice/Dockerfile
+    container_name: oddsservice
+    depends_on:
+      - postgres
+    ports:
+      - "8083:8083"
+    networks:
+      - appnet
 
 volumes:
   pgdata:

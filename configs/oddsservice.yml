@@ -1,0 +1,9 @@
+serviceName: "oddsservice"
+httpPort: 8083
+
+database:
+  host: "postgres"
+  port: 5432
+  user: "pulsebet"
+  password: "pulsebet"
+  name: "oddsservice_db"
