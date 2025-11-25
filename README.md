@@ -28,7 +28,7 @@ Sustav se sastoji od dva mikroservisa:
 
 ### 1. Kloniraj projekt
 
-git clone <tvoj-repo>
+git clone https://github.com/DMiljevic1/pulsebet.git (za https) ili git clone git@github.com:DMiljevic1/pulsebet.git (za ssh)
 cd pulsebet
 
 ### 2. Pokreni projekt 
