@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
     networks:
       - appnet
 
@@ -58,6 +59,33 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - appnet
+
+  gameservice:
+    build:
+      context: .
+      dockerfile: ./cmd/gameservice/Dockerfile
+    container_name: gameservice
+    depends_on:
+      - postgres
+      - redpanda
+    ports:
+      - "8081:8081"
+    networks:
+      - appnet
+
+  betservice:
+    build:
+      context: .
+      dockerfile: ./cmd/betservice/Dockerfile
+    container_name: betservice
+    depends_on:
+      - postgres
+      - redpanda
+    ports:
+      - "8082:8082"
+    networks:
+      - appnet
+
 
 volumes:
   pgdata:
