@@ -14,6 +14,7 @@ import (
 	"github.com/DMiljevic1/pulsebet/internal/kafka"
 	"github.com/DMiljevic1/pulsebet/internal/logging"
 	"github.com/DMiljevic1/pulsebet/internal/services/bet"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	segmentio "github.com/segmentio/kafka-go"
 )
 
@@ -58,6 +59,8 @@ func main() {
 	}()
 
 	mux := http.NewServeMux()
+
+	mux.Handle("/metrics", promhttp.Handler())
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "OK")

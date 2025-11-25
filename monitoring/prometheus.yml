@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+
+  - job_name: 'gameservice'
+    static_configs:
+      - targets: ['gameservice:8081']
+
+  - job_name: 'betservice'
+    static_configs:
+      - targets: ['betservice:8082']
