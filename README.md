@@ -28,7 +28,7 @@ Sustav se sastoji od dva mikroservisa:
 
 ### 1. Kloniraj projekt
 
-git clone https://github.com/DMiljevic1/pulsebet.git (za https) ili git clone git@github.com:DMiljevic1/pulsebet.git (za ssh)
+git clone https://github.com/DMiljevic1/pulsebet.git (za https) ili git clone git@github.com:DMiljevic1/pulsebet.git (za ssh), 
 cd pulsebet
 
 ### 2. Pokreni projekt 
@@ -71,15 +71,10 @@ curl -X POST http://localhost:8081/matches \
   -d '{"home":"Chelsea","away":"Arsenal"}'
 
 GameService:
-
-spremi match u gameservice_db
-
-publisha MatchCreated event
+- spremi match u gameservice_db
+- publisha MatchCreated event
 
 BetService:
-
-consuma event
-
-upiše match u betservice_db u tablicu matches
-
-idempotentno (ON CONFLICT (id) DO NOTHING / DO UPDATE)
+-consuma event
+-upiše match u betservice_db u tablicu matches
+-idempotentno (ON CONFLICT (id) DO NOTHING / DO UPDATE)
