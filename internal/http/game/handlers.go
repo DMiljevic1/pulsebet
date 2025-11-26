@@ -34,7 +34,7 @@ func handleCreateMatch(w http.ResponseWriter, r *http.Request, service game.Serv
 
 	match, err := service.CreateMatch(req.Home, req.Away)
 	if err != nil {
-		logger.Error("Failed to create a match", err)
+		logger.Error("Failed to create a match", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

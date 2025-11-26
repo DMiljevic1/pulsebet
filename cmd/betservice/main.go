@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/DMiljevic1/pulsebet/internal/config"
-	db2 "github.com/DMiljevic1/pulsebet/internal/db"
+	"github.com/DMiljevic1/pulsebet/internal/db"
 	"github.com/DMiljevic1/pulsebet/internal/events"
 	bethttp "github.com/DMiljevic1/pulsebet/internal/http/bet"
 	"github.com/DMiljevic1/pulsebet/internal/httpserver"
@@ -26,7 +27,7 @@ func main() {
 
 	logger := logging.New(cfg.ServiceName)
 
-	db, err := db2.Connect(cfg.Database)
+	db, err := db.ConnectWithRetry(logger, cfg.Database, 5, 3*time.Second)
 	if err != nil {
 		logger.Error("Failed to connect to database", "error", err)
 		return

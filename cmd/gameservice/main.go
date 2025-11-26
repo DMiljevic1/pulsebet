@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/DMiljevic1/pulsebet/internal/config"
 	"github.com/DMiljevic1/pulsebet/internal/db"
@@ -26,15 +27,15 @@ func main() {
 	logger := logging.New(cfg.ServiceName)
 
 	// 3) Db connection
-	dbConn, err := db.Connect(cfg.Database)
+	db, err := db.ConnectWithRetry(logger, cfg.Database, 5, 3*time.Second)
 	if err != nil {
 		logger.Error("Failed to connect to database: %v", err)
 		return
 	}
-	defer dbConn.Close()
+	defer db.Close()
 
 	// 4) Repository
-	gameRepo := game.NewRepository(dbConn)
+	gameRepo := game.NewRepository(db)
 
 	// 5) Kafka producer
 	producer := kafkapkg.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.Topics.MatchCreated, logger)
