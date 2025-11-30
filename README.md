@@ -10,7 +10,7 @@ Pulsebet je jednostavan, ali realističan mikroservisni sustav za prikaz kako
 - **Grafana** za vizualizaciju
 - **Docker Compose** kao orkestrator
 
-Sustav se sastoji od dva mikroservisa:
+Sustav se sastoji od tri mikroservisa:
 
 1. **GameService**
    - Ima endpoint za kreiranje utakmica (`matches`)
@@ -21,6 +21,9 @@ Sustav se sastoji od dva mikroservisa:
    - Consumer koji sluša `MatchCreated` event
    - Upisuje match u svoju vlastitu bazu kao *available match*
    - Osnovni idempotentni upsert (po `match_id`)
+
+3. **OddsService**
+   - U izradi
 
 ---
 
@@ -36,7 +39,7 @@ cd pulsebet
 docker compose up --build
 Docker Compose automatski podiže:
 
-Postgres (sa tri baze: pulsebet, gameservice_db, betservice_db)
+Postgres (sa tri baze: oddsservice_db, gameservice_db, betservice_db)
 
 Redpanda (Kafka)
 
@@ -47,6 +50,8 @@ Grafana
 GameService
 
 BetService
+
+OddsService
 
 ### 3. Automatska inicijalizacija projekta 
 
